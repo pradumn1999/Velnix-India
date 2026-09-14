@@ -1,0 +1,6 @@
+{
+  "name": "Velnix India",
+  "description": "Modern dropshipping e-commerce platform designed for Indian retail featuring curated trending products, seamless cart and checkout, and CJdropshipping tracking integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

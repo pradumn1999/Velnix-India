@@ -1,0 +1,58 @@
+import { Category } from '../types';
+
+export const CATEGORIES: Category[] = [
+  {
+    id: 'cat-electronics',
+    name: 'Electronics & Gadgets',
+    slug: 'electronics',
+    description: 'Smart tech, wireless audio, magnetic power banks and workspace essentials',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
+    itemCount: 28,
+    featured: true,
+  },
+  {
+    id: 'cat-home',
+    name: 'Home & Kitchen',
+    slug: 'home-kitchen',
+    description: 'Aesthetic ambient lamps, ultrasonic diffusers and smart culinary tools',
+    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80',
+    itemCount: 34,
+    featured: true,
+  },
+  {
+    id: 'cat-fitness',
+    name: 'Fitness & Wellness',
+    slug: 'fitness',
+    description: 'Deep tissue percussion massage, resistance tech and ergonomic gear',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    itemCount: 19,
+    featured: true,
+  },
+  {
+    id: 'cat-accessories',
+    name: 'Accessories & Watches',
+    slug: 'accessories',
+    description: 'Minimalist timepieces, RFID-blocking card cases and polarized sunglasses',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+    itemCount: 22,
+    featured: true,
+  },
+  {
+    id: 'cat-beauty',
+    name: 'Beauty & Grooming',
+    slug: 'beauty',
+    description: 'LED photon skincare wands, heated eyelash curlers and ionic hair stylers',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80',
+    itemCount: 16,
+    featured: true,
+  },
+  {
+    id: 'cat-lifestyle',
+    name: 'Modern Lifestyle',
+    slug: 'lifestyle',
+    description: 'Hydration flasks, travel organizers and everyday carry upgrades',
+    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&auto=format&fit=crop&q=80',
+    itemCount: 25,
+    featured: true,
+  },
+];
