@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import 'dotenv/config';
 import { createServer as createViteServer } from 'vite';
 
 import productsRouter from './server/routes/products';

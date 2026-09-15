@@ -133,7 +133,7 @@ export const LoginPage: React.FC = () => {
               <input
                 type="checkbox"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRememberMe(e.target.checked)}
                 className="rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
               />
               <span className="text-neutral-600 text-xs">Keep me signed in</span>
@@ -148,7 +148,7 @@ export const LoginPage: React.FC = () => {
             isLoading={isLoading}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Sign In with MongoDB
+            Sign In
           </Button>
         </form>
 
@@ -166,7 +166,7 @@ export const LoginPage: React.FC = () => {
         <div className="text-center text-xs text-neutral-500 pt-2 border-t border-neutral-100">
           Don't have an account yet?{' '}
           <Link to="/register" className="font-bold text-neutral-900 hover:underline">
-            Create an Account in MongoDB
+            Create an Account
           </Link>
         </div>
       </div>

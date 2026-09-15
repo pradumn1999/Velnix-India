@@ -6,6 +6,16 @@ import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
 import { VelnixLogo } from '../components/common/VelnixLogo';
 
+// Keep JSX intrinsic elements available when the project uses the automatic
+// JSX runtime without exposing the React JSX namespace globally.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      [elementName: string]: any;
+    }
+  }
+}
+
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { register, isMongoActive, mongoDatabase, mongoStatusMessage } = useAuth();
@@ -67,7 +77,7 @@ export const RegisterPage: React.FC = () => {
             Create Your Account
           </h1>
           <p className="text-xs text-neutral-500">
-            User details are stored securely in MongoDB
+            User details are stored
           </p>
         </div>
 
@@ -102,7 +112,7 @@ export const RegisterPage: React.FC = () => {
                 type="text"
                 required
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                 placeholder="e.g. Rahul Sharma"
                 className="w-full pl-9 pr-3 py-2.5 border border-neutral-300 rounded-lg focus:border-neutral-900 focus:outline-none"
               />
@@ -197,7 +207,7 @@ export const RegisterPage: React.FC = () => {
             isLoading={isLoading}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Register with MongoDB
+            Register
           </Button>
         </form>
 
@@ -205,7 +215,7 @@ export const RegisterPage: React.FC = () => {
         <div className="text-center text-xs text-neutral-500 pt-2 border-t border-neutral-100">
           Already have an account?{' '}
           <Link to="/login" className="font-bold text-neutral-900 hover:underline">
-            Sign In with MongoDB
+            Sign In 
           </Link>
         </div>
       </div>
