@@ -30,6 +30,15 @@ export interface MongoUser {
 let client: MongoClient | null = null;
 let dbInstance: Db | null = null;
 let connectionPromise: Promise<Db | null> | null = null;
+let lastConnectionError: string | null = null;
+
+export function getMongoConnectionMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/tls|ssl/i.test(message)) {
+    return 'MongoDB Atlas TLS connection failed. Check the Atlas IP allowlist, cluster status, and local antivirus/VPN TLS inspection, then restart the server.';
+  }
+  return `MongoDB connection failed: ${message}`;
+}
 
 // High-fidelity in-memory fallback store when MONGODB_URI is not provided yet
 const inMemoryUsers: Map<string, MongoUser> = new Map();
@@ -73,8 +82,12 @@ const inMemoryUsers: Map<string, MongoUser> = new Map();
  */
 export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolean }> {
   const uri = process.env.MONGODB_URI;
+  const allowDemoStorage = process.env.ALLOW_DEMO_STORAGE === 'true';
 
   if (!uri || uri.trim() === '' || uri.includes('<username>')) {
+    if (!allowDemoStorage) {
+      throw new Error('MONGODB_URI is not configured. Set it in .env or enable ALLOW_DEMO_STORAGE=true for demo storage.');
+    }
     return { db: null, isFallback: true };
   }
 
@@ -103,7 +116,8 @@ export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolea
         
         return dbInstance;
       } catch (err) {
-        console.warn('[MongoDB] Connection failed, falling back to memory store:', err);
+        lastConnectionError = err instanceof Error ? err.message : String(err);
+        console.error('[MongoDB] Connection failed:', lastConnectionError);
         client = null;
         dbInstance = null;
         return null;
@@ -112,6 +126,9 @@ export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolea
   }
 
   const db = await connectionPromise;
+  if (!db && !allowDemoStorage) {
+    throw new Error(getMongoConnectionMessage(lastConnectionError || 'unknown connection error'));
+  }
   return { db, isFallback: !db };
 }
 
@@ -198,11 +215,19 @@ export async function getMongoStatus() {
   const isConfigured = !!(uri && uri.trim() !== '' && !uri.includes('<username>'));
   
   if (!isConfigured) {
+    if (process.env.ALLOW_DEMO_STORAGE === 'true') {
+      return {
+        status: 'unconfigured',
+        connected: false,
+        isFallback: true,
+        message: 'MONGODB_URI not set. Running in explicitly enabled demo storage mode.',
+      };
+    }
     return {
       status: 'unconfigured',
       connected: false,
-      isFallback: true,
-      message: 'MONGODB_URI not set in environment. Running in active fallback mode.',
+      isFallback: false,
+      message: 'MONGODB_URI not set in environment. MongoDB storage is required.',
     };
   }
 
@@ -221,15 +246,15 @@ export async function getMongoStatus() {
         status: 'error',
         connected: false,
         isFallback: true,
-        message: 'Could not connect to MongoDB URI. Using fallback mode.',
+        message: getMongoConnectionMessage(lastConnectionError || 'unknown connection error'),
       };
     }
   } catch (err: any) {
     return {
       status: 'error',
       connected: false,
-      isFallback: true,
-      error: err?.message || 'Connection error',
+      isFallback: process.env.ALLOW_DEMO_STORAGE === 'true',
+      message: getMongoConnectionMessage(err),
     };
   }
 }

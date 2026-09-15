@@ -6,6 +6,7 @@ import {
   getDatabase,
   MongoAddress,
   MongoUser,
+  getMongoConnectionMessage,
 } from '../../server/db/mongodb';
 
 type RequestWithBody = {
@@ -96,9 +97,9 @@ export default async function handler(req: RequestWithBody, res: ResponseLike) {
     });
   } catch (error: any) {
     console.error('[Vercel Auth Register Error]:', error);
-    res.status(500).json({
+    res.status(503).json({
       success: false,
-      message: error?.message || 'Registration failed due to an internal server error.',
+      message: getMongoConnectionMessage(error),
     });
   }
 }

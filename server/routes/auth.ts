@@ -8,6 +8,7 @@ import {
   getDatabase,
   MongoUser,
   MongoAddress,
+  getMongoConnectionMessage,
 } from '../db/mongodb';
 
 const router = Router();
@@ -120,9 +121,9 @@ router.post('/register', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error('[Auth Register Error]:', err);
-    res.status(500).json({
+    res.status(503).json({
       success: false,
-      message: err?.message || 'Registration failed due to an internal server error.',
+      message: getMongoConnectionMessage(err),
     });
   }
 });
