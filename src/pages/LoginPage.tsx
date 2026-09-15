@@ -1,4 +1,6 @@
+/** @jsxRuntime classic */
 import React, { useState } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Database, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -52,12 +54,12 @@ export const LoginPage: React.FC = () => {
             Sign In to Velnix
           </h1>
           <p className="text-xs text-neutral-500">
-            Secure authentication powered by MongoDB
+            Secure authentication
           </p>
         </div>
 
         {/* MongoDB Status Banner */}
-        <div className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+        {/* <div className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
           isMongoActive 
             ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' 
             : 'bg-amber-50/70 border-amber-200 text-amber-900'
@@ -76,7 +78,7 @@ export const LoginPage: React.FC = () => {
                 : `${mongoStatusMessage}. Add MONGODB_URI in Settings to connect your Atlas database.`}
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-xs">
@@ -87,7 +89,7 @@ export const LoginPage: React.FC = () => {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="name@example.com"
                 className="w-full pl-9 pr-3 py-2.5 border border-neutral-300 rounded-lg focus:border-neutral-900 focus:outline-none"
               />
@@ -113,7 +115,7 @@ export const LoginPage: React.FC = () => {
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full pl-9 pr-10 py-2.5 border border-neutral-300 rounded-lg focus:border-neutral-900 focus:outline-none"
               />

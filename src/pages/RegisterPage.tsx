@@ -54,7 +54,7 @@ export const RegisterPage: React.FC = () => {
       const result = await register(name, email, mobile, password);
       setIsLoading(false);
       if (result.success) {
-        showToast(result.message || 'Account created successfully in MongoDB! Welcome to Velnix.', 'success');
+        showToast(result.message || 'Account created successfully. Welcome to Velnix.', 'success');
         navigate('/');
       } else {
         showToast(result.message || 'Registration failed', 'error');
@@ -82,7 +82,7 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         {/* MongoDB Status Banner */}
-        <div className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+        {/* <div className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
           isMongoActive 
             ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' 
             : 'bg-amber-50/70 border-amber-200 text-amber-900'
@@ -101,7 +101,7 @@ export const RegisterPage: React.FC = () => {
                 : `${mongoStatusMessage}. Add MONGODB_URI in Settings to connect your MongoDB Atlas cluster.`}
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-xs">
