@@ -1,5 +1,4 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import bcrypt from 'bcryptjs';
 
 export interface MongoAddress {
   id: string;
@@ -40,59 +39,18 @@ export function getMongoConnectionMessage(error: unknown): string {
   return `MongoDB connection failed: ${message}`;
 }
 
-// High-fidelity in-memory fallback store when MONGODB_URI is not provided yet
-const inMemoryUsers: Map<string, MongoUser> = new Map();
-
-// Seed initial demo user in memory fallback
-(async () => {
-  try {
-    const demoPasswordHash = await bcrypt.hash('password123', 10);
-    const demoUser: MongoUser = {
-      name: 'Pradumn Mandal',
-      email: 'pradumn@example.com',
-      mobile: '+91 98765 43210',
-      passwordHash: demoPasswordHash,
-      role: 'customer',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-      addresses: [
-        {
-          id: 'addr-1',
-          fullName: 'Pradumn Mandal',
-          mobile: '+91 98765 43210',
-          addressLine: 'Flat 402, Royal Palms Residency, Outer Ring Road, Bellandur',
-          landmark: 'Near EcoSpace Tech Park',
-          city: 'Bengaluru',
-          state: 'Karnataka',
-          pincode: '560103',
-          type: 'Home',
-          isDefault: true,
-        },
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    inMemoryUsers.set(demoUser.email.toLowerCase(), demoUser);
-  } catch (err) {
-    console.error('Error seeding demo user:', err);
-  }
-})();
-
 /**
- * Connect to MongoDB with lazy initialization and graceful fallback
+ * Connect to MongoDB with lazy initialization.
  */
-export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolean }> {
+export async function getDatabase(): Promise<Db> {
   const uri = process.env.MONGODB_URI;
-  const allowDemoStorage = process.env.ALLOW_DEMO_STORAGE === 'true';
 
   if (!uri || uri.trim() === '' || uri.includes('<username>')) {
-    if (!allowDemoStorage) {
-      throw new Error('MONGODB_URI is not configured. Set it in .env or enable ALLOW_DEMO_STORAGE=true for demo storage.');
-    }
-    return { db: null, isFallback: true };
+    throw new Error('MONGODB_URI is not configured. Set it in the environment before using authentication.');
   }
 
   if (dbInstance) {
-    return { db: dbInstance, isFallback: false };
+    return dbInstance;
   }
 
   if (!connectionPromise) {
@@ -100,8 +58,8 @@ export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolea
       try {
         console.log('[MongoDB] Connecting to MongoDB...');
         client = new MongoClient(uri, {
-          connectTimeoutMS: 8000,
-          serverSelectionTimeoutMS: 8000,
+          connectTimeoutMS: 20000,
+          serverSelectionTimeoutMS: 20000,
         });
         await client.connect();
         
@@ -120,33 +78,24 @@ export async function getDatabase(): Promise<{ db: Db | null; isFallback: boolea
         console.error('[MongoDB] Connection failed:', lastConnectionError);
         client = null;
         dbInstance = null;
+        connectionPromise = null;
         return null;
       }
     })();
   }
 
   const db = await connectionPromise;
-  if (!db && !allowDemoStorage) {
+  if (!db) {
     throw new Error(getMongoConnectionMessage(lastConnectionError || 'unknown connection error'));
   }
-  return { db, isFallback: !db };
+  return db;
 }
 
-/**
- * Get the Users collection or fallback handler
- */
 export async function findUserByEmail(email: string): Promise<MongoUser | null> {
   const normalizedEmail = email.toLowerCase().trim();
-  const { db, isFallback } = await getDatabase();
-
-  if (!isFallback && db) {
-    const col = db.collection<MongoUser>('users');
-    const user = await col.findOne({ email: normalizedEmail });
-    return user;
-  }
-
-  // Fallback to in-memory store
-  return inMemoryUsers.get(normalizedEmail) || null;
+  const db = await getDatabase();
+  const col = db.collection<MongoUser>('users');
+  return col.findOne({ email: normalizedEmail });
 }
 
 /**
@@ -161,18 +110,10 @@ export async function createMongoUser(userData: Omit<MongoUser, 'createdAt' | 'u
     updatedAt: new Date(),
   };
 
-  const { db, isFallback } = await getDatabase();
-
-  if (!isFallback && db) {
-    const col = db.collection<MongoUser>('users');
-    const result = await col.insertOne(fullUser as any);
-    fullUser._id = result.insertedId;
-    return fullUser;
-  }
-
-  // Fallback to in-memory store
-  fullUser._id = `mem_${Date.now()}`;
-  inMemoryUsers.set(normalizedEmail, fullUser);
+  const db = await getDatabase();
+  const col = db.collection<MongoUser>('users');
+  const result = await col.insertOne(fullUser as any);
+  fullUser._id = result.insertedId;
   return fullUser;
 }
 
@@ -184,27 +125,13 @@ export async function updateMongoUser(
   partial: Partial<Omit<MongoUser, '_id' | 'email' | 'createdAt'>>
 ): Promise<MongoUser | null> {
   const normalizedEmail = email.toLowerCase().trim();
-  const { db, isFallback } = await getDatabase();
-
-  if (!isFallback && db) {
-    const col = db.collection<MongoUser>('users');
-    await col.updateOne(
-      { email: normalizedEmail },
-      { $set: { ...partial, updatedAt: new Date() } }
-    );
-    return await col.findOne({ email: normalizedEmail });
-  }
-
-  // Fallback
-  const existing = inMemoryUsers.get(normalizedEmail);
-  if (!existing) return null;
-  const updated: MongoUser = {
-    ...existing,
-    ...partial,
-    updatedAt: new Date(),
-  };
-  inMemoryUsers.set(normalizedEmail, updated);
-  return updated;
+  const db = await getDatabase();
+  const col = db.collection<MongoUser>('users');
+  await col.updateOne(
+    { email: normalizedEmail },
+    { $set: { ...partial, updatedAt: new Date() } }
+  );
+  return col.findOne({ email: normalizedEmail });
 }
 
 /**
@@ -215,45 +142,25 @@ export async function getMongoStatus() {
   const isConfigured = !!(uri && uri.trim() !== '' && !uri.includes('<username>'));
   
   if (!isConfigured) {
-    if (process.env.ALLOW_DEMO_STORAGE === 'true') {
-      return {
-        status: 'unconfigured',
-        connected: false,
-        isFallback: true,
-        message: 'MONGODB_URI not set. Running in explicitly enabled demo storage mode.',
-      };
-    }
     return {
       status: 'unconfigured',
       connected: false,
-      isFallback: false,
       message: 'MONGODB_URI not set in environment. MongoDB storage is required.',
     };
   }
 
   try {
-    const { db, isFallback } = await getDatabase();
-    if (db && !isFallback) {
-      return {
-        status: 'connected',
-        connected: true,
-        isFallback: false,
-        database: db.databaseName,
-        message: 'Successfully connected to MongoDB cluster.',
-      };
-    } else {
-      return {
-        status: 'error',
-        connected: false,
-        isFallback: true,
-        message: getMongoConnectionMessage(lastConnectionError || 'unknown connection error'),
-      };
-    }
+    const db = await getDatabase();
+    return {
+      status: 'connected',
+      connected: true,
+      database: db.databaseName,
+      message: 'Successfully connected to MongoDB cluster.',
+    };
   } catch (err: any) {
     return {
       status: 'error',
       connected: false,
-      isFallback: process.env.ALLOW_DEMO_STORAGE === 'true',
       message: getMongoConnectionMessage(err),
     };
   }

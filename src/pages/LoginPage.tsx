@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Database, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
@@ -13,8 +13,8 @@ export const LoginPage: React.FC = () => {
   const { login, isMongoActive, mongoDatabase, mongoStatusMessage } = useAuth();
   const { showToast } = useToast();
 
-  const [email, setEmail] = useState('pradumn@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -153,16 +153,6 @@ export const LoginPage: React.FC = () => {
             Sign In
           </Button>
         </form>
-
-        {/* Demo Credentials Helper Pill */}
-        <div className="p-3 rounded-lg bg-neutral-50 border border-neutral-200 text-[11px] text-neutral-600 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>
-              Prefilled: <strong>pradumn@example.com</strong> / <strong>password123</strong>
-            </span>
-          </div>
-        </div>
 
         {/* Link to Register */}
         <div className="text-center text-xs text-neutral-500 pt-2 border-t border-neutral-100">

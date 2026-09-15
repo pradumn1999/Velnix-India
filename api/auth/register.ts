@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import {
   createMongoUser,
   findUserByEmail,
-  getDatabase,
   MongoAddress,
   MongoUser,
   getMongoConnectionMessage,
@@ -86,14 +85,11 @@ export default async function handler(req: RequestWithBody, res: ResponseLike) {
       addresses: [initialAddress],
     });
 
-    const { isFallback } = await getDatabase();
     res.status(201).json({
       success: true,
-      message: isFallback
-        ? 'Account registered successfully (Demo storage mode).'
-        : 'Account registered and securely saved in MongoDB!',
+      message: 'Account registered and securely saved in MongoDB!',
       user: sanitizeUser(newUser),
-      isMongo: !isFallback,
+      isMongo: true,
     });
   } catch (error: any) {
     console.error('[Vercel Auth Register Error]:', error);

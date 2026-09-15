@@ -5,7 +5,6 @@ import {
   createMongoUser,
   updateMongoUser,
   getMongoStatus,
-  getDatabase,
   MongoUser,
   MongoAddress,
   getMongoConnectionMessage,
@@ -21,7 +20,7 @@ function sanitizeUser(user: MongoUser) {
 
 /**
  * GET /api/auth/status
- * Check if MongoDB is connected or running in fallback
+ * Check if MongoDB is connected.
  */
 router.get('/status', async (_req: Request, res: Response) => {
   try {
@@ -109,15 +108,11 @@ router.post('/register', async (req: Request, res: Response) => {
       addresses: [initialAddress],
     });
 
-    const { isFallback } = await getDatabase();
-
     res.status(201).json({
       success: true,
-      message: isFallback
-        ? 'Account registered successfully (Demo storage mode).'
-        : 'Account registered and securely saved in MongoDB!',
+      message: 'Account registered and securely saved in MongoDB!',
       user: sanitizeUser(newUser),
-      isMongo: !isFallback,
+      isMongo: true,
     });
   } catch (err: any) {
     console.error('[Auth Register Error]:', err);
@@ -163,15 +158,11 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    const { isFallback } = await getDatabase();
-
     res.json({
       success: true,
-      message: isFallback
-        ? 'Signed in successfully.'
-        : 'Signed in successfully via MongoDB authentication.',
+      message: 'Signed in successfully via MongoDB authentication.',
       user: sanitizeUser(user),
-      isMongo: !isFallback,
+      isMongo: true,
     });
   } catch (err: any) {
     console.error('[Auth Login Error]:', err);

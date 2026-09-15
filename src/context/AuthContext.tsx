@@ -25,55 +25,10 @@ interface AuthContextType {
   refreshMongoStatus: () => Promise<void>;
 }
 
-const DEFAULT_ADDRESSES: ShippingAddress[] = [
-  {
-    id: 'addr-default-1',
-    fullName: 'Pradumn Mandal',
-    mobile: '+91 98765 43210',
-    addressLine: 'Flat 402, Royal Palms Residency, Outer Ring Road, Bellandur',
-    landmark: 'Near EcoSpace Tech Park',
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    pincode: '560103',
-    type: 'Home',
-    isDefault: true,
-  },
-  {
-    id: 'addr-default-2',
-    fullName: 'Pradumn Mandal',
-    mobile: '+91 98765 43210',
-    addressLine: 'Level 5, WeWork Prestige Tech Park, Marathahalli-Sarjapur ORR',
-    landmark: 'Opposite Cisco',
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    pincode: '560103',
-    type: 'Work',
-    isDefault: false,
-  },
-];
-
-const DEFAULT_USER: UserProfile = {
-  name: 'Pradumn Mandal',
-  email: 'pradumn@example.com',
-  mobile: '+91 98765 43210',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-  addresses: DEFAULT_ADDRESSES,
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('velnix_user') || localStorage.getItem('novakart_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return DEFAULT_USER;
-      }
-    }
-    return DEFAULT_USER;
-  });
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   const [isMongoActive, setIsMongoActive] = useState<boolean>(false);
   const [mongoDatabase, setMongoDatabase] = useState<string | null>(null);
@@ -83,14 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkDb = useCallback(async () => {
     try {
       const res = await api.getAuthStatus();
-      if (res.connected && !res.isFallback) {
+      if (res.connected) {
         setIsMongoActive(true);
         setMongoDatabase(res.database || 'velnix');
         setMongoStatusMessage(res.message || 'Connected to MongoDB cluster');
       } else {
         setIsMongoActive(false);
         setMongoDatabase(null);
-        setMongoStatusMessage(res.message || 'Using fallback in-memory store');
+        setMongoStatusMessage(res.message || 'MongoDB is not connected');
       }
     } catch {
       setIsMongoActive(false);
@@ -101,15 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     checkDb();
   }, [checkDb]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('velnix_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('velnix_user');
-      localStorage.removeItem('novakart_user');
-    }
-  }, [user]);
 
   /**
    * Login using MongoDB API
@@ -123,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: res.user.email,
           mobile: res.user.mobile || '+91 98765 43210',
           avatarUrl: res.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(res.user.name || email)}&backgroundColor=381219&textColor=f5efe6`,
-          addresses: res.user.addresses && res.user.addresses.length > 0 ? res.user.addresses : DEFAULT_ADDRESSES,
+          addresses: res.user.addresses || [],
         };
         setUser(loggedUser);
         return {
@@ -156,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: res.user.email,
           mobile: res.user.mobile,
           avatarUrl: res.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=381219&textColor=f5efe6`,
-          addresses: res.user.addresses && res.user.addresses.length > 0 ? res.user.addresses : DEFAULT_ADDRESSES,
+          addresses: res.user.addresses || [],
         };
         setUser(newUser);
         return {

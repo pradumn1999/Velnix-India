@@ -163,7 +163,6 @@ export const api = {
     success: boolean;
     status: string;
     connected: boolean;
-    isFallback: boolean;
     database?: string;
     message: string;
   }> {
