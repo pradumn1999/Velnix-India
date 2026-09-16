@@ -1,3 +1,5 @@
+/** @jsx React.createElement */
+/** @jsxRuntime classic */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Search } from 'lucide-react';
@@ -6,12 +8,19 @@ import { Breadcrumb } from '../components/common/Breadcrumb';
 import { OrderCard } from '../components/order/OrderCard';
 import { EmptyState } from '../components/common/EmptyState';
 
+type OrdersPageOrder = {
+  id: string;
+  orderStatus: string;
+  trackingNumber?: string;
+  items: Array<{ product: { name: string } }>;
+};
+
 export const OrdersPage: React.FC = () => {
   const { orders } = useOrders();
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'delivered'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = orders.filter((order: OrdersPageOrder) => {
     // Status
     if (statusFilter === 'active') {
       if (order.orderStatus === 'Delivered' || order.orderStatus === 'Cancelled') {
@@ -59,14 +68,15 @@ export const OrdersPage: React.FC = () => {
               id: 'active',
               label: `Active / In Transit (${
                 orders.filter(
-                  (o) => o.orderStatus !== 'Delivered' && o.orderStatus !== 'Cancelled'
+                  (o: OrdersPageOrder) =>
+                    o.orderStatus !== 'Delivered' && o.orderStatus !== 'Cancelled'
                 ).length
               })`,
             },
             {
               id: 'delivered',
               label: `Delivered (${
-                orders.filter((o) => o.orderStatus === 'Delivered').length
+                orders.filter((o: OrdersPageOrder) => o.orderStatus === 'Delivered').length
               })`,
             },
           ].map((tab) => (
@@ -91,7 +101,9 @@ export const OrdersPage: React.FC = () => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
             placeholder="Search by Order ID, Product, or Tracking Number..."
             className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-neutral-300 rounded-full focus:border-neutral-950 focus:outline-none shadow-xs"
           />
@@ -116,7 +128,7 @@ export const OrdersPage: React.FC = () => {
         />
       ) : (
         <div className="flex flex-col gap-5">
-          {filteredOrders.map((order) => (
+          {filteredOrders.map((order: OrdersPageOrder) => (
             <OrderCard key={order.id} order={order} />
           ))}
         </div>

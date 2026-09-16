@@ -1,6 +1,6 @@
 import { Product, Order, OrderStatus, TrackingCheckpoint, CartItem, ShippingAddress } from '../../src/types';
-import { PRODUCTS } from '../../src/data/products';
-import { INITIAL_ORDERS } from '../../src/data/mockOrders';
+import { PRODUCTS } from '../../src/data/products.js';
+import { INITIAL_ORDERS } from '../../src/data/mockOrders.js';
 
 // In-Memory Database Store for NovaKart
 class DataStore {

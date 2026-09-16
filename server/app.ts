@@ -1,12 +1,12 @@
 import express from 'express';
 
-import productsRouter from './routes/products';
-import ordersRouter from './routes/orders';
-import razorpayRouter from './routes/razorpay';
-import cjRouter from './routes/cjdropshipping';
-import pincodeRouter from './routes/pincode';
-import statsRouter from './routes/stats';
-import authRouter from './routes/auth';
+import productsRouter from './routes/products.js';
+import ordersRouter from './routes/orders.js';
+import razorpayRouter from './routes/razorpay.js';
+import cjRouter from './routes/cjdropshipping.js';
+import pincodeRouter from './routes/pincode.js';
+import statsRouter from './routes/stats.js';
+import authRouter from './routes/auth.js';
 
 export function createApp() {
   const app = express();

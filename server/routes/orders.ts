@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { store } from '../data/store';
+import { store } from '../data/store.js';
 import { OrderStatus } from '../../src/types';
 
 const router = Router();
