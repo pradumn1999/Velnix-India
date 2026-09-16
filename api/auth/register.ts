@@ -5,7 +5,7 @@ import {
   findUserByEmail,
   MongoUser,
   getMongoConnectionMessage,
-} from '../../server/db/mongodb';
+} from '../../server/db/mongodb.js';
 
 type RequestWithBody = {
   method?: string;

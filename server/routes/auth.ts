@@ -8,7 +8,7 @@ import {
   MongoUser,
   MongoAddress,
   getMongoConnectionMessage,
-} from '../db/mongodb';
+} from '../db/mongodb.js';
 
 const router = Router();
 
