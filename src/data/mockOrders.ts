@@ -1,5 +1,5 @@
 import { Order } from '../types';
-import { PRODUCTS } from './products';
+import { PRODUCTS } from './products.js';
 
 export const INITIAL_ORDERS: Order[] = [
   {
