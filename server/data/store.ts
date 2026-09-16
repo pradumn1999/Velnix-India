@@ -159,8 +159,10 @@ class DataStore {
   }
 
   // --- Orders ---
-  public getOrders(): Order[] {
-    return this.orders;
+  public getOrders(customerEmail?: string): Order[] {
+    if (!customerEmail) return this.orders;
+    const normalizedEmail = customerEmail.trim().toLowerCase();
+    return this.orders.filter((order) => order.customerEmail?.toLowerCase() === normalizedEmail);
   }
 
   public getOrderById(orderId: string): Order | undefined {
@@ -168,6 +170,7 @@ class DataStore {
   }
 
   public createOrder(orderData: {
+    customerEmail: string;
     items: CartItem[];
     subtotal: number;
     shipping: number;
@@ -278,6 +281,7 @@ class DataStore {
 
     const newOrder: Order = {
       id: newId,
+      customerEmail: orderData.customerEmail.trim().toLowerCase(),
       orderDate: today,
       items: orderData.items,
       subtotal: orderData.subtotal,

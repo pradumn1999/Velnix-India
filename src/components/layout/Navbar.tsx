@@ -245,13 +245,15 @@ export const Navbar: React.FC = () => {
                           >
                             Orders & Live Tracking
                           </Link>
-                          <Link
-                            to="/admin"
-                            className="px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-50 rounded-xl transition-colors flex items-center justify-between"
-                          >
-                            <span>Fulfillment Admin</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                          </Link>
+                          {user?.role === 'admin' && (
+                            <Link
+                              to="/admin"
+                              className="px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-50 rounded-xl transition-colors flex items-center justify-between"
+                            >
+                              <span>Fulfillment Admin</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            </Link>
+                          )}
                         </div>
                         <div className="border-t border-neutral-100 pt-1 mt-1">
                           <button
@@ -279,12 +281,6 @@ export const Navbar: React.FC = () => {
                             className="block px-3 py-2 text-xs font-medium text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50 rounded-xl transition-colors"
                           >
                             Track Order (Guest)
-                          </Link>
-                          <Link
-                            to="/admin"
-                            className="block px-3 py-2 text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50 rounded-xl transition-colors"
-                          >
-                            Admin Portal
                           </Link>
                         </div>
                       </>
@@ -349,7 +345,7 @@ export const Navbar: React.FC = () => {
               to="/products?special=trending"
               className="ml-auto text-neutral-950 hover:text-amber-600 font-bold flex items-center gap-1.5 transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              {/* <Sparkles className="w-3.5 h-3.5 text-amber-500" /> */}
               <span>Trending Drops</span>
             </Link>
           </nav>
@@ -427,12 +423,14 @@ export const Navbar: React.FC = () => {
                       >
                         Wishlist ({wishlistCount})
                       </Link>
-                      <Link
-                        to="/admin"
-                        className="py-2.5 px-3 rounded-xl text-emerald-800 font-semibold hover:bg-emerald-50 transition-colors"
-                      >
-                        Fulfillment Admin Portal
-                      </Link>
+                      {user?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          className="py-2.5 px-3 rounded-xl text-emerald-800 font-semibold hover:bg-emerald-50 transition-colors"
+                        >
+                          Fulfillment Admin Portal
+                        </Link>
+                      )}
                       <button
                         onClick={logout}
                         className="py-2.5 px-3 text-left rounded-xl text-rose-600 hover:bg-rose-50 font-semibold transition-colors mt-1"

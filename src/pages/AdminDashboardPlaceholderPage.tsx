@@ -26,6 +26,7 @@ import { Button } from '../components/common/Button';
 import { formatINR } from '../utils/formatters';
 import { useToast } from '../context/ToastContext';
 import { useOrders } from '../context/OrderContext';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Product, Order, OrderStatus } from '../types';
 
@@ -33,6 +34,7 @@ export const AdminDashboardPlaceholderPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user, isAuthenticated } = useAuth();
   const { orders: contextOrders, updateOrderStatus, refreshOrders } = useOrders();
 
   const subRoute = location.pathname.split('/')[2] || 'overview';
@@ -95,8 +97,27 @@ export const AdminDashboardPlaceholderPage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (user?.role === 'admin') {
+      loadDashboardData();
+    }
+  }, [user?.role]);
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <ShieldCheck className="w-12 h-12 mx-auto text-neutral-300" />
+        <h1 className="mt-5 text-2xl font-black text-neutral-950">Admin access required</h1>
+        <p className="mt-2 text-sm text-neutral-500">
+          Sign in with an admin account to manage products, orders, and fulfillment.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Button variant="primary" onClick={() => navigate(isAuthenticated ? '/buyer' : '/login')}>
+            {isAuthenticated ? 'Go to Buyer Panel' : 'Sign In'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Handle CJ Inventory Sync
   const handleSyncCJInventory = async () => {

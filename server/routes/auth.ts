@@ -83,20 +83,6 @@ router.post('/register', async (req: Request, res: Response) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Initial default address list
-    const initialAddress: MongoAddress = {
-      id: `addr-${Date.now()}`,
-      fullName: cleanName,
-      mobile: cleanMobile,
-      addressLine: 'Sector 44, Galleria Market',
-      landmark: 'Near Metro Station',
-      city: 'Gurugram',
-      state: 'Haryana',
-      pincode: '122003',
-      type: 'Home',
-      isDefault: true,
-    };
-
     // Save to MongoDB
     const newUser = await createMongoUser({
       name: cleanName,
@@ -105,7 +91,7 @@ router.post('/register', async (req: Request, res: Response) => {
       passwordHash,
       role: 'customer',
       avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=381219&textColor=f5efe6`,
-      addresses: [initialAddress],
+      addresses: [],
     });
 
     res.status(201).json({

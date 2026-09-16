@@ -103,6 +103,7 @@ export interface ShippingAddress {
 
 export interface Order {
   id: string; // e.g., "NK-847291"
+  customerEmail?: string;
   orderDate: string;
   items: CartItem[];
   subtotal: number;
@@ -125,6 +126,7 @@ export interface UserProfile {
   name: string;
   email: string;
   mobile: string;
+  role: 'customer' | 'admin';
   avatarUrl?: string;
   addresses: ShippingAddress[];
 }

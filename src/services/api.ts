@@ -48,17 +48,23 @@ export const api = {
   },
 
   // --- Orders ---
-  async getOrders(): Promise<{ success: boolean; orders: Order[] }> {
-    const res = await fetch('/api/orders');
+  async getOrders(user: { email: string; role: 'customer' | 'admin' }): Promise<{ success: boolean; orders: Order[] }> {
+    const params = new URLSearchParams({
+      role: user.role,
+      ...(user.role === 'admin' ? {} : { email: user.email }),
+    });
+    const res = await fetch(`/api/orders?${params.toString()}`);
     return res.json();
   },
 
-  async getOrderById(id: string): Promise<{ success: boolean; order?: Order }> {
-    const res = await fetch(`/api/orders/${id}`);
+  async getOrderById(id: string, user: { email: string; role: 'customer' | 'admin' }): Promise<{ success: boolean; order?: Order }> {
+    const params = new URLSearchParams({ role: user.role, ...(user.role === 'admin' ? {} : { email: user.email }) });
+    const res = await fetch(`/api/orders/${id}?${params.toString()}`);
     return res.json();
   },
 
   async createOrder(data: {
+    customerEmail: string;
     items: CartItem[];
     subtotal: number;
     shipping: number;
@@ -76,8 +82,8 @@ export const api = {
     return res.json();
   },
 
-  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<{ success: boolean; order?: Order }> {
-    const res = await fetch(`/api/orders/${orderId}/status`, {
+  async updateOrderStatus(orderId: string, status: OrderStatus, role: 'customer' | 'admin'): Promise<{ success: boolean; order?: Order }> {
+    const res = await fetch(`/api/orders/${orderId}/status?role=${role}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),

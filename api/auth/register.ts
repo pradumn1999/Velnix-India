@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import {
   createMongoUser,
   findUserByEmail,
-  MongoAddress,
   MongoUser,
   getMongoConnectionMessage,
 } from '../../server/db/mongodb';
@@ -62,19 +61,6 @@ export default async function handler(req: RequestWithBody, res: ResponseLike) {
       return;
     }
 
-    const initialAddress: MongoAddress = {
-      id: `addr-${Date.now()}`,
-      fullName: cleanName,
-      mobile: cleanMobile,
-      addressLine: 'Sector 44, Galleria Market',
-      landmark: 'Near Metro Station',
-      city: 'Gurugram',
-      state: 'Haryana',
-      pincode: '122003',
-      type: 'Home',
-      isDefault: true,
-    };
-
     const newUser = await createMongoUser({
       name: cleanName,
       email: cleanEmail,
@@ -82,7 +68,7 @@ export default async function handler(req: RequestWithBody, res: ResponseLike) {
       passwordHash: await bcrypt.hash(String(password), 10),
       role: 'customer',
       avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=381219&textColor=f5efe6`,
-      addresses: [initialAddress],
+      addresses: [],
     });
 
     res.status(201).json({

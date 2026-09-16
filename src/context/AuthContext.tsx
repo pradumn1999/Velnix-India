@@ -28,7 +28,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const savedUser = localStorage.getItem('velnix_user');
+    if (!savedUser) return null;
+
+    try {
+      return JSON.parse(savedUser) as UserProfile;
+    } catch {
+      localStorage.removeItem('velnix_user');
+      return null;
+    }
+  });
 
   const [isMongoActive, setIsMongoActive] = useState<boolean>(false);
   const [mongoDatabase, setMongoDatabase] = useState<string | null>(null);
@@ -57,6 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkDb();
   }, [checkDb]);
 
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('velnix_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('velnix_user');
+    }
+  }, [user]);
+
   /**
    * Login using MongoDB API
    */
@@ -68,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: res.user.name || email.split('@')[0],
           email: res.user.email,
           mobile: res.user.mobile || '+91 98765 43210',
+          role: res.user.role || 'customer',
           avatarUrl: res.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(res.user.name || email)}&backgroundColor=381219&textColor=f5efe6`,
           addresses: res.user.addresses || [],
         };
@@ -101,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: res.user.name,
           email: res.user.email,
           mobile: res.user.mobile,
+          role: res.user.role || 'customer',
           avatarUrl: res.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=381219&textColor=f5efe6`,
           addresses: res.user.addresses || [],
         };
@@ -125,6 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('velnix_user');
   };
 
   const updateProfile = async (updated: Partial<UserProfile>) => {

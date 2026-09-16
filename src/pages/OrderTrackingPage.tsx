@@ -24,7 +24,7 @@ export const OrderTrackingPage: React.FC = () => {
   const { getOrderById, orders } = useOrders();
   const { showToast } = useToast();
 
-  const order = getOrderById(orderId || '') || orders[0];
+  const order = getOrderById(orderId || '');
 
   if (!order) {
     return (

@@ -83,20 +83,8 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    addAddress({
-      fullName,
-      mobile,
-      addressLine,
-      landmark,
-      city,
-      state,
-      pincode,
-      type: addressType,
-      isDefault: true,
-    });
-
     setShowNewAddressForm(false);
-    showToast('New shipping address saved', 'success');
+    showToast('Address selected for this order', 'success');
   };
 
   const getSelectedShippingAddress = (): ShippingAddress => {
@@ -117,6 +105,17 @@ export const CheckoutPage: React.FC = () => {
     };
   };
 
+  const saveAddressForOrder = async (address: ShippingAddress) => {
+    const selectedExistingAddress = user?.addresses.some((item) => item.id === selectedAddressId);
+    if (selectedExistingAddress) return;
+
+    const { id: _addressId, ...addressToSave } = address;
+    await addAddress({
+      ...addressToSave,
+      isDefault: (user?.addresses.length || 0) === 0,
+    });
+  };
+
   const handleRazorpaySuccess = async (paymentDetails: {
     razorpay_order_id: string;
     razorpay_payment_id: string;
@@ -126,7 +125,9 @@ export const CheckoutPage: React.FC = () => {
     const chosenAddress = getSelectedShippingAddress();
     try {
       await api.verifyRazorpayPayment(paymentDetails);
+      await saveAddressForOrder(chosenAddress);
       const order = await createOrder({
+        customerEmail: user?.email || '',
         items: [...cart],
         subtotal,
         shipping,
@@ -177,7 +178,9 @@ export const CheckoutPage: React.FC = () => {
     // Cash on Delivery flow
     setIsProcessing(true);
     try {
+      await saveAddressForOrder(chosenAddress);
       const order = await createOrder({
+        customerEmail: user?.email || '',
         items: [...cart],
         subtotal,
         shipping,
