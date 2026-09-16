@@ -67,10 +67,10 @@ export const HomePage: React.FC = () => {
             
             {/* Left Column: Bold Headline & Editorial Copy */}
             <div className="lg:col-span-7 flex flex-col items-start gap-6 sm:gap-7">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#381219]/90 border border-[#5a1e2a] text-[11px] font-bold text-[#f5efe6] tracking-wide shadow-xs">
+              {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#381219]/90 border border-[#5a1e2a] text-[11px] font-bold text-[#f5efe6] tracking-wide shadow-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {/* <span>Velnix Official Store • Express Pan-India Transit</span> */}
-              </div>
+                <span>Velnix Official Store • Express Pan-India Transit</span>
+              </div> */}
 
               <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-[-0.035em] leading-[1.08] text-white">
                 Curated products <br className="hidden sm:inline" />
